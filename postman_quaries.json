@@ -37,7 +37,18 @@
           "path": ["registration"]
         }
       },
-      "response": []
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 201\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Есть токен\", function () { \n    var jsonData = pm.response.json();\n    pm.expect(jsonData.access_token).to.be.a('string');\n    if (jsonData.access_token) {\n        pm.collectionVariables.set(\"access_token\", jsonData.access_token);\n    }\n});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "2. Логин пользователя",
@@ -59,7 +70,18 @@
           "path": ["login"]
         }
       },
-      "response": []
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Есть токен\", function () { \n    var jsonData = pm.response.json();\n    pm.expect(jsonData.access_token).to.be.a('string');\n    if (jsonData.access_token) {\n        pm.collectionVariables.set(\"access_token\", jsonData.access_token);\n    }\n});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "3. Получить профиль (с токеном)",
@@ -81,42 +103,47 @@
           "path": ["profile"]
         }
       },
-      "response": []
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Есть данные пользователя\", function () { \n    var jsonData = pm.response.json();\n    pm.expect(jsonData.user).to.be.an('object');\n    pm.expect(jsonData.user.email).to.eql('ivan@example.com');\n});"
+            ]
+          }
+        }
+      ]
     },
     {
-    "name": "❌ 4. Получить профиль (без токена)",
-    "request": {
-      "method": "GET",
-      "header": [
+      "name": "4. Получить профиль (без токена)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/profile",
+          "host": ["{{base_url}}"],
+          "path": ["profile"]
+        }
+      },
+      "event": [
         {
-          "key": "Content-Type",
-          "value": "application/json"
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 401\", function () { pm.response.to.have.status(401); });"
+            ]
+          }
         }
-      ],
-      "url": {
-        "raw": "{{base_url}}/profile",
-        "host": ["{{base_url}}"],
-        "path": ["profile"]
-      }
+      ]
     },
-    "event": [
-      {
-        "listen": "test",
-        "script": {
-          "type": "text/javascript",
-          "exec": [
-            "pm.test(\"Статус должен быть 401\", function () {",
-            "    pm.response.to.have.status(401);",
-            "});",
-            "pm.test(\"Должна быть ошибка аутентификации\", function () {",
-            "    var jsonData = pm.response.json();",
-            "    pm.expect(jsonData.message).to.include('Unauthenticated');",
-            "});"
-          ]
-        }
-      }
-    ]
-  },
     {
       "name": "5. Регистрация с ошибками валидации",
       "request": {
@@ -137,7 +164,18 @@
           "path": ["registration"]
         }
       },
-      "response": []
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 422\", function () { pm.response.to.have.status(422); });",
+              "pm.test(\"Есть ошибки валидации\", function () { \n    var jsonData = pm.response.json();\n    pm.expect(jsonData.errors).to.be.an('object');\n});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "6. Регистрация с существующим email",
@@ -159,7 +197,18 @@
           "path": ["registration"]
         }
       },
-      "response": []
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 422\", function () { pm.response.to.have.status(422); });",
+              "pm.test(\"Ошибка уникальности email\", function () { \n    var jsonData = pm.response.json();\n    pm.expect(jsonData.errors.email[0]).to.include('already been taken');\n});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "7. Регистрация пользователя без имени",
@@ -181,7 +230,18 @@
           "path": ["registration"]
         }
       },
-      "response": []
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 201\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Пользователь создан без имени\", function () { \n    var jsonData = pm.response.json();\n    pm.expect(jsonData.user.name).to.be.null;\n});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "8. Регистрация пользователя с полом 'other'",
@@ -203,30 +263,18 @@
           "path": ["registration"]
         }
       },
-      "response": []
-    }
-  ],
-  "event": [
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "// Автоматически сохраняем access_token после регистрации или логина",
-          "if (pm.response.code === 201 || pm.response.code === 200) {",
-          "    var jsonData = pm.response.json();",
-          "    if (jsonData.access_token) {",
-          "        pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
-          "        console.log(\"Access token сохранен: \" + jsonData.access_token);",
-          "    }",
-          "}",
-          "",
-          "// Проверка успешных ответов",
-          "pm.test(\"Статус ответа успешный\", function () {",
-          "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
-          "});"
-        ]
-      }
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 201\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Пользователь создан с полом other\", function () { \n    var jsonData = pm.response.json();\n    pm.expect(jsonData.user.gender).to.eql('other');\n});"
+            ]
+          }
+        }
+      ]
     }
   ]
 }
