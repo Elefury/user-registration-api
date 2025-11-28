@@ -1,0 +1,232 @@
+{
+  "info": {
+    "name": "User Registration API",
+    "description": "API для регистрации и управления пользователями",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Регистрация нового пользователя",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Иван Иванов\",\n    \"email\": \"ivan@example.com\",\n    \"password\": \"password123\",\n    \"gender\": \"male\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/registration",
+          "host": ["{{base_url}}"],
+          "path": ["registration"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Логин пользователя",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"ivan@example.com\",\n    \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/login",
+          "host": ["{{base_url}}"],
+          "path": ["login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Получить профиль (с токеном)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/profile",
+          "host": ["{{base_url}}"],
+          "path": ["profile"]
+        }
+      },
+      "response": []
+    },
+    {
+    "name": "❌ 4. Получить профиль (без токена)",
+    "request": {
+      "method": "GET",
+      "header": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "url": {
+        "raw": "{{base_url}}/profile",
+        "host": ["{{base_url}}"],
+        "path": ["profile"]
+      }
+    },
+    "event": [
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"Статус должен быть 401\", function () {",
+            "    pm.response.to.have.status(401);",
+            "});",
+            "pm.test(\"Должна быть ошибка аутентификации\", function () {",
+            "    var jsonData = pm.response.json();",
+            "    pm.expect(jsonData.message).to.include('Unauthenticated');",
+            "});"
+          ]
+        }
+      }
+    ]
+  },
+    {
+      "name": "5. Регистрация с ошибками валидации",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"неправильный-email\",\n    \"password\": \"123\",\n    \"gender\": \"неправильный_пол\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/registration",
+          "host": ["{{base_url}}"],
+          "path": ["registration"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. Регистрация с существующим email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Петр Петров\",\n    \"email\": \"ivan@example.com\",\n    \"password\": \"password456\",\n    \"gender\": \"male\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/registration",
+          "host": ["{{base_url}}"],
+          "path": ["registration"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7. Регистрация пользователя без имени",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"anna@example.com\",\n    \"password\": \"anna123456\",\n    \"gender\": \"female\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/registration",
+          "host": ["{{base_url}}"],
+          "path": ["registration"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. Регистрация пользователя с полом 'other'",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Алексей\",\n    \"email\": \"alex@example.com\",\n    \"password\": \"alex123456\",\n    \"gender\": \"other\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/registration",
+          "host": ["{{base_url}}"],
+          "path": ["registration"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Автоматически сохраняем access_token после регистрации или логина",
+          "if (pm.response.code === 201 || pm.response.code === 200) {",
+          "    var jsonData = pm.response.json();",
+          "    if (jsonData.access_token) {",
+          "        pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+          "        console.log(\"Access token сохранен: \" + jsonData.access_token);",
+          "    }",
+          "}",
+          "",
+          "// Проверка успешных ответов",
+          "pm.test(\"Статус ответа успешный\", function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+          "});"
+        ]
+      }
+    }
+  ]
+}
